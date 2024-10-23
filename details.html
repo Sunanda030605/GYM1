@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Success</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #f9f9f9, #33c4d7);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #28a745;
+        }
+
+        .textbox {
+            border: 2px solid #28a745;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            background-color: #f0fdf4;
+            font-size: 20px;
+            font-weight: bold;
+            color: #155724;
+        }
+
+        .form-group label {
+            font-weight: bold; /* Make the label bold */
+        }
+
+        .button-container {
+            margin-top: 30px;
+        }
+
+        .button-container a {
+            padding: 15px 30px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .button-container a:hover {
+            background-color: #0056b3;
+        }
+
+        /* Calendar styles */
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .day {
+            padding: 10px;
+            background-color: #f0f9ff;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold; /* Make day text bold */
+        }
+
+        .occupied {
+            background-color: #ffc9c9;
+            color: #a94442;
+            cursor: not-allowed;
+        }
+
+        .available {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .day:hover.available {
+            background-color: #c3e6cb;
+        }
+
+        /* Selected date style */
+        .selected {
+            background-color: #28a745 !important;
+            color: white;
+        }
+
+        /* Save button */
+        .save-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .save-btn {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .save-btn:hover {
+            background-color: #218838;
+        }
+
+        /* Confirmation message */
+        .confirmation {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #d4edda;
+            color: #155724;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Registration Complete</h2>
+        <!-- Congratulations message -->
+        <div class="textbox">
+            CONGRATULATIONS!!! You registered successfully
+        </div>
+
+        <!-- Dropdown for selecting a month -->
+        <div class="form-group">
+            <label for="month-select">Select a Month:</label>
+            <select id="month-select" class="form-control" style="max-width: 300px; margin: 0 auto;">
+                <option value="">-- Select Month --</option>
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+            </select>
+        </div>
+
+        <!-- Calendar view of gym classes -->
+        <h4 id="date-selection-header" style="font-weight: bold; display: none;">Select Dates to Register for Gym Classes</h4>
+        <div id="calendar" class="calendar" style="display: none;">
+            <!-- Calendar days will be inserted here dynamically -->
+        </div>
+
+        <!-- Save button and confirmation message -->
+        <div class="save-container">
+            <button id="save-btn" class="save-btn">Save</button>
+            <div id="confirmation" class="confirmation"></div>
+        </div>
+
+        <!-- Button to go back to login or home -->
+        <div class="button-container">
+            <a href="index.html">Go to Login</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Data for all 12 months
+        const monthData = {
+            January: { occupiedDays: [1, 3, 5, 10, 15], totalDaysInMonth: 31 },
+            February: { occupiedDays: [2, 4, 8, 12, 20], totalDaysInMonth: 28 },
+            March: { occupiedDays: [7, 9, 14, 18, 25], totalDaysInMonth: 31 },
+            April: { occupiedDays: [3, 7, 10, 13, 20], totalDaysInMonth: 30 },
+            May: { occupiedDays: [5, 11, 16, 20, 28], totalDaysInMonth: 31 },
+            June: { occupiedDays: [2, 8, 12, 19, 26], totalDaysInMonth: 30 },
+            July: { occupiedDays: [1, 4, 9, 14, 20], totalDaysInMonth: 31 },
+            August: { occupiedDays: [3, 6, 11, 17, 24], totalDaysInMonth: 31 },
+            September: { occupiedDays: [5, 10, 15, 21, 30], totalDaysInMonth: 30 },
+            October: { occupiedDays: [3, 8, 13, 18, 25], totalDaysInMonth: 31 },
+            November: { occupiedDays: [2, 6, 12, 19, 28], totalDaysInMonth: 30 },
+            December: { occupiedDays: [1, 5, 9, 15, 24], totalDaysInMonth: 31 }
+        };
+
+        let selectedDays = []; // To store the selected days
+
+        // Get the calendar and save button elements
+        const calendar = document.getElementById('calendar');
+        const saveContainer = document.querySelector('.save-container');
+        const confirmation = document.getElementById('confirmation');
+        const monthSelect = document.getElementById('month-select');
+        const dateSelectionHeader = document.getElementById('date-selection-header');
+
+        // Handle month selection
+        monthSelect.addEventListener('change', function () {
+            const selectedMonth = monthSelect.value;
+            if (selectedMonth) {
+                loadCalendar(selectedMonth);
+                calendar.style.display = 'grid'; // Show the calendar when a month is selected
+                dateSelectionHeader.style.display = 'block'; // Show the header for date selection
+            } else {
+                calendar.style.display = 'none'; // Hide the calendar if no month is selected
+                dateSelectionHeader.style.display = 'none'; // Hide the date selection header
+            }
+        });
+
+        // Function to load the calendar based on the selected month
+        function loadCalendar(month) {
+            const monthInfo = monthData[month];
+            calendar.innerHTML = ''; // Clear any previous calendar
+            selectedDays = []; // Reset selected days when a new month is chosen
+
+            // Generate the days of the selected month
+            for (let day = 1; day <= monthInfo.totalDaysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('day');
+
+                // Mark as occupied or available
+                if (monthInfo.occupiedDays.includes(day)) {
+                    dayElement.classList.add('occupied');
+                    dayElement.textContent = `Day ${day}: Occupied`;
+                } else {
+                    dayElement.classList.add('available');
+                    dayElement.textContent = `Day ${day}: Available`;
+
+                    dayElement.addEventListener('click', function () {
+                        // Toggle selection of the day
+                        if (selectedDays.includes(day)) {
+                            // Deselect the day
+                            dayElement.classList.remove('selected');
+                            selectedDays = selectedDays.filter(d => d !== day);
+                        } else {
+                            // Select the day
+                            dayElement.classList.add('selected');
+                            selectedDays.push(day);
+                        }
+
+                        // Show the save button if any day is selected
+                        saveContainer.style.display = selectedDays.length > 0 ? 'block' : 'none';
+                    });
+                }
+
+                // Add the day element to the calendar
+                calendar.appendChild(dayElement);
+            }
+        }
+
+        // Add event listener to the Save button
+        document.getElementById('save-btn').addEventListener('click', function () {
+            // Update the confirmation message with the selected dates
+            const selectedDates = selectedDays.join(', ');
+            confirmation.innerHTML = `Your selected dates (${selectedDates}) have been registered successfully!`;
+
+            // Show the confirmation message
+            confirmation.style.display = 'block';
+        });
+    </script>
+
+</body>
+
+</html>
